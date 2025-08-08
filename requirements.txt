@@ -1,0 +1,15 @@
+# Production
+pandas
+scikit-learn
+yfinance
+ta-lib
+fastapi
+uvicorn[standard]
+pydantic
+joblib
+
+# Development / Tooling
+pytest
+black
+pre-commit
+jupyter
