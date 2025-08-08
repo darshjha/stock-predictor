@@ -1,0 +1,31 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- Packaging ----
+build/
+dist/
+*.egg-info/
+
+# ---- Virtual envs ----
+.env/
+venv/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+
+# ---- VS Code ----
+.vscode/
+
+# ---- Node ----
+node_modules/
+
+# ---- OS / Misc ----
+.DS_Store
+
+# ---- Project Artifacts ----
+models/
+data/
+*.log
+.env
