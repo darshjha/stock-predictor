@@ -1,58 +1,45 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer
-} from "recharts";
-
-type DataPoint = {
-  date: string;
-  close: number;
-};
+import { API_URL } from "../lib/config";
 
 export default function Home() {
   const [ticker, setTicker] = useState("SPY");
   const [horizon, setHorizon] = useState(5);
-  const [chartData, setChartData] = useState<DataPoint[]>([]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [predicted, setPredicted] = useState<number | null>(null);
 
-  const fetchPrediction = async () => {
+  const handlePredict = async () => {
+    setLoading(true);
+    setError(null);
+    setPredicted(null);
+
     try {
-      // Fetch prediction
-      const res = await axios.get(
-        `/predict?ticker=${ticker.toUpperCase()}&horizon=${horizon}`
-      );
-      setPredicted(res.data.predicted_price);
-
-      // Fetch historical prices for chart (last 60d)
-      const hist = await axios.get(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=2mo&interval=1d`
-      );
-      const candles = hist.data.chart.result[0];
-      const prices: DataPoint[] = candles.timestamp.map(
-        (t: number, idx: number) => ({
-          date: new Date(t * 1000).toLocaleDateString(),
-          close: candles.indicators.quote[0].close[idx]
-        })
+      const res = await fetch(
+        `${API_URL}/predict?ticker=${ticker.toUpperCase()}&horizon=${horizon}`
       );
 
-      // Append predicted point (dummy date label "Prediction")
-      prices.push({
-        date: "Prediction",
-        close: res.data.predicted_price
-      });
+      if (!res.ok) {
+        let detail = res.statusText;
+        try {
+          const data = await res.json();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          detail = (data as any).detail ?? detail;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(`API error (${res.status}): ${detail}`);
+      }
 
-      setChartData(prices);
-    } catch (err) {
-      // TODO: better error handling / toast
-      console.error(err);
+      const data: { predicted_price: number } = await res.json();
+      setPredicted(data.predicted_price);
+    } catch (err: unknown) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,6 +53,7 @@ export default function Home() {
           onChange={(e) => setTicker(e.target.value)}
           className="border p-2 rounded w-32 text-center"
         />
+
         <select
           value={horizon}
           onChange={(e) => setHorizon(Number(e.target.value))}
@@ -77,38 +65,26 @@ export default function Home() {
             </option>
           ))}
         </select>
+
         <button
-          onClick={fetchPrediction}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          onClick={handlePredict}
+          disabled={loading}
+          className={`px-4 py-2 rounded text-white ${
+            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          Predict
+          {loading ? "Loading…" : "Predict"}
         </button>
       </div>
 
-      {predicted !== null && (
+      {error && <p className="text-red-600">{error}</p>}
+
+      {predicted !== null && !loading && (
         <p className="text-lg">
-          {ticker.toUpperCase()} predicted price (next&nbsp;
-          {horizon}d):{" "}
+          {ticker.toUpperCase()} predicted price (next {horizon}d):{" "}
           <span className="font-semibold">${predicted.toFixed(2)}</span>
         </p>
       )}
-
-      <div className="w-full h-96">
-        <ResponsiveContainer>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" hide />
-            <YAxis domain={["auto", "auto"]} />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="close"
-              stroke="#2563eb"
-              strokeWidth={2}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
     </main>
   );
 }
