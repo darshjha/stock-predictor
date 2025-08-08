@@ -29,3 +29,12 @@ models/
 data/
 *.log
 .env
+
+# ---- Front-end / Next.js ----
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
+
+# ---- Docker ----
+*.tar
+*.docker
