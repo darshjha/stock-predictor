@@ -64,4 +64,27 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--symbol", default="SPY")
+    parser.add_argument("--period", default="5y")
+    args = parser.parse_args()
+
+    DATA_DIR.mkdir(exist_ok=True, parents=True)
+    MODEL_DIR.mkdir(exist_ok=True, parents=True)
+
+    df = fetch_data(symbol=args.symbol, period=args.period)
+    X, y = prepare_dataset(df)
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_squared_error
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, shuffle=False
+    )
+    model = train_model(X_train, y_train)
+    mse = mean_squared_error(y_test, model.predict(X_test))
+    print(f"Test MSE: {mse:.6f}")
+
+    save_model(model, MODEL_PATH)  # saves to models/model.joblib (default path)
+    print(f"Model saved → {MODEL_PATH}")
