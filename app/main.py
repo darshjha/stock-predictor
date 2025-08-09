@@ -10,6 +10,7 @@ from typing import Any
 import pandas as pd
 import yfinance as yf
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import sys
@@ -27,6 +28,15 @@ from src.utils import load_model  # type: ignore
 MODEL_PATH = MODELS_DIR / "model.joblib"
 
 app = FastAPI(title="Stock Predictor API", version="0.1.0")
+
+# ---- CORS (allow requests from the Next.js dev server) ----
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ---- Load model once at startup ----
 try:

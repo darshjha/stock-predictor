@@ -28,6 +28,12 @@ npm install
 npm run dev   # http://localhost:3000
 ```
 
+> **Tip:** create `/frontend/.env.local` so the frontend knows where the FastAPI backend lives:
+>
+> ```bash
+> NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+> ```
+
 ### Docker
 
 ```bash
