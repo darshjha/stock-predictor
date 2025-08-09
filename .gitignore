@@ -9,8 +9,9 @@ dist/
 *.egg-info/
 
 # ---- Virtual envs ----
-.env/
+.venv/
 venv/
+.env/
 
 # ---- Jupyter ----
 .ipynb_checkpoints/
@@ -18,8 +19,13 @@ venv/
 # ---- VS Code ----
 .vscode/
 
-# ---- Node ----
+# ---- Node / Next.js ----
 node_modules/
+.next/
+out/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # ---- OS / Misc ----
 .DS_Store
@@ -28,4 +34,7 @@ node_modules/
 models/
 data/
 *.log
-.env
+
+# ---- Docker ----
+*.local
+docker-compose.override.yml
