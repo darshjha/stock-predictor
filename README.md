@@ -34,6 +34,9 @@ npm run dev   # http://localhost:3000
 > NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 > ```
 
+# In `/frontend/.env.local`
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+
 ### Docker
 
 ```bash

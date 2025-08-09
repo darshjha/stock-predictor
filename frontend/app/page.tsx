@@ -2,42 +2,34 @@
 "use client";
 
 import { useState } from "react";
-import { API_URL } from "../lib/config";
+import { api, API_URL } from "../lib/api";
+
+type Prediction = {
+  ticker: string;
+  horizon: number;
+  predicted_price: number;
+};
 
 export default function Home() {
   const [ticker, setTicker] = useState("SPY");
   const [horizon, setHorizon] = useState(5);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [predicted, setPredicted] = useState<number | null>(null);
+  const [result, setResult] = useState<Prediction | null>(null);
 
-  const handlePredict = async () => {
+  const onPredict = async () => {
     setLoading(true);
     setError(null);
-    setPredicted(null);
+    setResult(null);
 
     try {
-      const res = await fetch(
-        `${API_URL}/predict?ticker=${ticker.toUpperCase()}&horizon=${horizon}`
-      );
-
-      if (!res.ok) {
-        let detail = res.statusText;
-        try {
-          const data = await res.json();
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          detail = (data as any).detail ?? detail;
-        } catch {
-          /* ignore */
-        }
-        throw new Error(`API error (${res.status}): ${detail}`);
-      }
-
-      const data: { predicted_price: number } = await res.json();
-      setPredicted(data.predicted_price);
+      const r = await api.get<Prediction>("/predict", {
+        params: { ticker: ticker.toUpperCase(), horizon },
+      });
+      setResult(r.data);
     } catch (err: unknown) {
-      setError((err as Error).message);
+      const msg = err instanceof Error ? err.message : "Unexpected error";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -67,7 +59,7 @@ export default function Home() {
         </select>
 
         <button
-          onClick={handlePredict}
+          onClick={onPredict}
           disabled={loading}
           className={`px-4 py-2 rounded text-white ${
             loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
@@ -79,12 +71,16 @@ export default function Home() {
 
       {error && <p className="text-red-600">{error}</p>}
 
-      {predicted !== null && !loading && (
+      {result && !loading && (
         <p className="text-lg">
-          {ticker.toUpperCase()} predicted price (next {horizon}d):{" "}
-          <span className="font-semibold">${predicted.toFixed(2)}</span>
+          {result.ticker} predicted price (next {result.horizon}d): {" "}
+          <span className="font-semibold">
+            ${result.predicted_price.toFixed(2)}
+          </span>
         </p>
       )}
+
+      <p className="text-xs text-gray-400 mt-4">API_URL: {API_URL}</p>
     </main>
   );
 }
