@@ -1,0 +1,9 @@
+4
+RESTOCK 5 Dummy
+SHOW_STOCK 0 Dummy
+SALE 3 Dummy
+SHOW_STOCK 0 Dummy
+SALE 10 Dummy
+SHOW_STOCK 0 Dummy
+RESTOCK 2 Charli
+SHOW_STOCK 0 Charli
