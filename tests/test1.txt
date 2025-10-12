@@ -1,0 +1,10 @@
+4
+SALE 1 Never Added
+SHOW_STOCK 0 Never Added
+RESTOCK 2 Foo Bar
+RESTOCK 3 Foo Bar
+SHOW_STOCK 0 Foo Bar
+SALE 5 Foo Bar
+SHOW_STOCK 0 Foo Bar
+SALE 4 Foo Bar
+SHOW_STOCK 0 Foo Bar
